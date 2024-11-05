@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lounges Display</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-btn, .logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .menu-btn {
+            color: green;
+            font-size: 24px;
+        }
+
+        .logout-btn {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar .close-btn {
+            text-align: left;
+            padding: 10px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar li a {
+            display: block;
+            text-decoration: none;
+            color: green;
+            padding: 10px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .company-logo {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .logo-acz {
+            width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            color: green;
+        }
+
+        .logo-acz1 {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .lounge-form {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+
+        .lounge-form img[alt="Area Picture"] {
+            max-width: 800px;
+            height: auto;
+            margin-bottom: 10px;
+            width: 1000px;
+            height: 300px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .area-direction-input {
+            font-size: 40px;
+            padding: 10px;
+            margin-top: 40px;
+            color: black;
+            height: 200px;
+            background-color: #005712 !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            border-radius: 30px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            font-size: 38px;
+            position: absolute;
+            top: 1075px;
+            left: 770px;
+            z-index: 10000000;
+            color: #005712 !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .area-name-input {
+            font-size: 4.668vw;
+            padding: 1.037344398vw;
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+            border: none;
+            background-color: #005712 !important;
+            box-shadow: none;
+            outline: none;
+            color: white;
+            height: 150px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .pagination-controls {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .pagination-controls button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: green;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            visibility: hidden;
+        }
+
+        #map {
+            height: 250px;
+            margin-top: 20px;
+            width: 50%;
+        }
+
+        .distance-time {
+            position: absolute;
+            top: 20px;
+            right: 750px;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            transform: translateY(200%);
+        }
+
+        .distance-time input {
+            border-radius: 50%;
+            border: 4px solid #005712;
+            padding: 10px;
+            height: 75px;
+            width: 75px;
+            text-align: center;
+        }
+
+        .leaflet-control-attribution {
+            font-size: 10px;
+            opacity: 0.0;
+        }
+
+        .map-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .clock {
+            position: absolute;
+    top: 125px;
+    right: 750px;
+    font-size: 24px;
+    color: #005712;
+        }
+
+        .clock input {
+            border: none;
+            background-color: transparent;
+            font-size: 30px;
+            color: #005712;
+            text-align: center;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <button class="menu-btn" onclick="openSidebar()">&#9776;</button>
+    <h1>WELCOME TO ACZ WAYFINDING SYSTEM</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="sidebar" id="mySidebar">
+    <div class="company-logo">
+        <img src="images/logo-acz.png" alt="" class="logo-acz">
+    </div>
+    <ul>
+        <div>
+            <ul>
+                <li><a href="#" onclick="toggleSubMenu(event)">HOME</a></li>
+                <li><a href="/areas/index" onclick="toggleSubMenu(event)">DASHBOARD</a></li>
+                <li><a href="#" onclick="toggleSubMenu(event)">AREAS</a>
+                    <ul id="submenu1" style="margin-left: 20px">
+                        <li><a href="/areas/showNewAreaForm">Create New Area Display1</a></li>
+                        <li><a href="/areas2/showNewAreaForm">Create New Area Display2</a></li>
+                        <li><a href="/gatesDisplayForm">View Gates Display1 Form</a></li>
+                        <li><a href="/loungeDisplayForm">View Lounges Display1 Form</a></li>
+                        <li><a href="/otherAreasDisplayForm">View Others Display1 Form</a></li>
+                        <li><a href="/gatesDisplayForm2">View Gates Display2 Form</a></li>
+                        <li><a href="/loungeDisplayForm2">View Lounges Display2 Form</a></li>
+                        <li><a href="/otherAreasDisplayForm2">View Others Display2 Form</a></li>
+                        <li><a href="/displayall">All Areas 1</a></li>
+                        <li><a href="/displayall2">All Areas 2</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" onclick="toggleSubMenu(event)">SLIDESHOW</a>
+                    <ul id="submenu2" style="margin-left: 20px">
+                        <li><a href="/AllAreasDisplayFormDisplay1">Display1</a></li>
+                        <li><a href="/AllAreasDisplayFormDisplay2">Display2</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="close-btn">
+                <button onclick="closeSidebar()">&times; Close</button>
+            </div>
+        </div>
+    </ul>
+</div>
+
+<div class="container">
+    <hr>
+    <div th:each="area, iterStat : ${listLounges}" class="lounge-form">
+        <form>
+            <div class="form-group">
+                <div class="area-name-container">
+                    <img src="images/logo-acz.png" alt="" class="logo-acz1">
+                    <div class="distance-time">
+                        <input type="text" id="distance" class="form-control" readonly placeholder="0 m">
+                        <input type="text" id="time" class="form-control" readonly placeholder="0 min">
+                    </div>
+                    <br><br>
+                    <input type="text" class="form-control area-name-input" th:value="${area.areaName}" placeholder="Area Direction" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <div>
+                    <img th:if="${area.base64Image != null}"
+                         th:src="'data:image/jpeg;base64,' + ${area.base64Image}"
+                         alt="Area Picture"/>
+                    <span th:unless="${area.base64Image != null}">No Image</span>
+                </div>
+            </div>
+            <div class="map-container">
+                <div id="map" th:attr="data-coordinates=${area.coordinates}"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">AREA DIRECTION</label>
+                <input type="text" class="form-control area-direction-input" th:value="${area.areaDirection}" readonly>
+            </div>
+        </form>
+    </div>
+
+    <div class="pagination-controls">
+        <button id="prevBtn" onclick="showPreviousLounge()">Previous</button>
+        <button id="nextBtn" onclick="showNextLounge()">Next</button>
+    </div>
+
+    <div class="clock">
+        <input type="text" id="currentTime" readonly>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    const SPEED_METERS_PER_MINUTE = 83.33; // assuming a walking speed of ~5 km/h
+    let currentLoungeIndex = 0;
+    const lounges = document.querySelectorAll('.lounge-form');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadMap() {
+        const mapContainer = lounges[currentLoungeIndex].querySelector("#map");
+        const coordinates = mapContainer.getAttribute("data-coordinates").split(",");
+        const lat = parseFloat(coordinates[0]);
+        const lng = parseFloat(coordinates[1]);
+
+        const map = L.map(mapContainer).setView([lat, lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([lat, lng]).addTo(map).bindPopup("Area Location");
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    const userMarker = L.marker([userLat, userLng]).addTo(map).bindPopup("Your Location");
+
+                    const distance = calculateDistance(lat, lng, userLat, userLng);
+                    const estimatedTime = Math.round(distance / SPEED_METERS_PER_MINUTE);
+
+                    document.querySelectorAll('.lounge-form')[currentLoungeIndex].querySelector("#distance").value = distance.toFixed(0) + " m";
+                    document.querySelectorAll('.lounge-form')[currentLoungeIndex].querySelector("#time").value = estimatedTime + " min";
+                },
+                (error) => console.error(error),
+                { enableHighAccuracy: true }
+            );
+        }
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3; // Earth's radius in meters
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // distance in meters
+    }
+
+    function updateLoungeDisplay() {
+        lounges.forEach((lounge, index) => {
+            lounge.style.display = (index === currentLoungeIndex) ? 'block' : 'none';
+        });
+
+        // Ensure pagination controls are updated
+        const paginationControls = document.querySelector('.pagination-controls');
+        paginationControls.style.display = lounges.length > 1 ? 'block' : 'none';
+
+        // Toggle previous and next buttons' visibility
+        document.getElementById('prevBtn').style.display = (currentLoungeIndex > 0) ? 'inline' : 'none';
+        document.getElementById('nextBtn').style.display = (currentLoungeIndex < lounges.length - 1) ? 'inline' : 'none';
+    }
+
+    function showPreviousLounge() {
+        currentLoungeIndex = (currentLoungeIndex - 1 + lounges.length) % lounges.length;
+        updateLoungeDisplay();
+        loadMap();
+    }
+
+    function showNextLounge() {
+        currentLoungeIndex = (currentLoungeIndex + 1) % lounges.length;
+        updateLoungeDisplay();
+        loadMap();
+    }
+
+    // Initialize display for the first load
+    updateLoungeDisplay();
+    loadMap();
+
+    setInterval(showNextLounge, 5000);
+
+    function openSidebar() {
+        document.getElementById("mySidebar").classList.add("open");
+    }
+
+    function closeSidebar() {
+        document.getElementById("mySidebar").classList.remove("open");
+    }
+
+    function toggleSubMenu(event) {
+        event.preventDefault();
+        const submenu = event.target.nextElementSibling;
+        submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+    }
+
+    function logout() {
+        window.location.href = '/logout';
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('currentTime').value = `${hours}:${minutes}:${seconds}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); // Initial call to set the clock immediately
+</script>
+
+</body>
+</html>

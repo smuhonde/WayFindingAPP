@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Wayfinding system</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: green;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar .close-btn {
+            text-align: left;
+            padding: 10px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .sidebar .close-btn button {
+            color: green;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            /*margin-bottom: 40px;*/
+        }
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar li a {
+            display: block;
+            text-decoration: none;
+            color: green;
+            padding: 10px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .company-logo {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .logo-acz {
+            width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            color: green;
+        }
+
+        .rotating-image {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .rotating-image.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <button class="menu-btn" onclick="openSidebar()">&#9776;</button>
+    <h1>WELCOME TO ACZ WAYFINDING SYSTEM</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="sidebar" id="mySidebar">
+    <div class="company-logo">
+        <img src="images/logo-acz.png" alt="" class="logo-acz">
+    </div>
+    <ul>
+        <li><a href="#" onclick="toggleSubMenu(event)">HOME</a></li>
+        <li><a href="/areas/index" onclick="toggleSubMenu(event)">DASHBOARD</a></li>
+        <li><a href="#" onclick="toggleSubMenu(event)">AREAS</a>
+            <ul id="submenu1" style="margin-left: 20px">
+                <li><a href="/areas/showNewAreaForm">Create New Area Display1</a></li>
+                <li><a href="/areas2/showNewAreaForm">Create New Area Display2</a></li>
+                <li><a href="/gatesDisplayForm">View Gates Display1 Form</a></li>
+                <li><a href="/loungeDisplayForm">View Lounges Display1 Form</a></li>
+                <li><a href="/otherAreasDisplayForm">View Others Display1 Form</a></li>
+                <li><a href="/gatesDisplayForm2">View Gates Display2 Form</a></li>
+                <li><a href="/loungeDisplayForm2">View Lounges Display2 Form</a></li>
+                <li><a href="/otherAreasDisplayForm2">View Others Display2 Form</a></li>
+                <li><a href="/displayall">All Areas 1</a></li>
+                <li><a href="/displayall2">All Areas 2</a></li>
+
+            </ul>
+        </li>
+        <li><a href="#" onclick="toggleSubMenu(event)">SLIDESHOW</a>
+            <ul id="submenu2" style="margin-left: 20px">
+                <li><a href="/AllAreasDisplayFormDisplay1">Display1</a></li>
+                <li><a href="/AllAreasDisplayFormDisplay2">Display2</a></li>
+            </ul>
+        </li>
+    </ul>
+    <div class="close-btn">
+        <button onclick="closeSidebar()">&times; Close</button>
+    </div>
+</div>
+<div class="content">
+    <img id="rotating-image" src="images/sec5.png" alt="" class="rotating-image">
+</div>
+
+<script>
+    function openSidebar() {
+        document.getElementById("mySidebar").classList.add("open");
+    }
+
+    function closeSidebar() {
+        document.getElementById("mySidebar").classList.remove("open");
+    }
+
+    function logout() {
+        // Add your logout functionality here
+        alert("Logout clicked!");
+    }
+
+    // Image rotation
+    const rotatingImages = [
+
+        "images/sec5.png",
+        "images/sec6.png",
+
+    ];
+
+    let currentImageIndex = 0;
+    const rotatingImageElement = document.getElementById("rotating-image");
+
+    setInterval(() => {
+        rotatingImageElement.classList.remove("show");
+        setTimeout(() => {
+            currentImageIndex = (currentImageIndex + 1) % rotatingImages.length;
+            rotatingImageElement.src = rotatingImages[currentImageIndex];
+            rotatingImageElement.classList.add("show");
+        },0); // Wait for 500ms before showing the next image
+    }, 2500); // Change image every 2.5 seconds (adjust the duration as needed)
+
+    function toggleSubMenu(event) {
+        event.preventDefault();
+        var submenu = document.getElementById('submenu');
+        submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+         var clickedLink = event.target;
+    if (clickedLink.innerText === "HOME") {
+        window.location.reload(); // Reload the page
+    }
+    }
+      function logout() {
+window.location.href = '/logout';
+}
+</script>
+</body>
+</html>

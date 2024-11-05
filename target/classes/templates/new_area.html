@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Create Area</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: green;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar .close-btn {
+            text-align: left;
+            padding: 10px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .sidebar .close-btn button {
+            color: green;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar li a {
+            display: block;
+            text-decoration: none;
+            color: green;
+            padding: 10px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .company-logo {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .logo-acz {
+            width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            color: green;
+        }
+
+        .rotating-image {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .rotating-image.show {
+            opacity: 1;
+        }
+
+        /* Map styling */
+        #map {
+            height: 300px; /* Set height for the map */
+            margin-top: 15px;
+             display: none; /* Hide the map */
+        }
+    </style>
+</head>
+
+<body>
+<div class="navbar">
+    <button class="menu-btn" onclick="openSidebar()">&#9776;</button>
+    <h1>WELCOME TO ACZ WAYFINDING SYSTEM</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="sidebar" id="mySidebar">
+    <div class="company-logo">
+        <img src="images/logo-acz.png" alt="" class="logo-acz">
+    </div>
+    <ul>
+        <li><a href="#" onclick="toggleSubMenu(event)">HOME</a></li>
+        <li><a href="/areas/index" onclick="toggleSubMenu(event)">DASHBOARD</a></li>
+        <li><a href="#" onclick="toggleSubMenu(event)">AREAS</a>
+            <ul id="submenu1" style="margin-left: 20px">
+                <li><a href="/areas/showNewAreaForm">Create New Area Display1</a></li>
+                <li><a href="/areas2/showNewAreaForm">Create New Area Display2</a></li>
+                <li><a href="/gatesDisplayForm">View Gates Display Form</a></li>
+                <li><a href="/loungeDisplayForm">View Lounges Display Form</a></li>
+                <li><a href="/otherAreasDisplayForm">View Others Display Form</a></li>
+                <li><a href="/gatesDisplayForm2">View Gates Display2 Form</a></li>
+                <li><a href="/loungeDisplayForm2">View Lounges Display2 Form</a></li>
+                <li><a href="/otherAreasDisplayForm2">View Others Display2 Form</a></li>
+                <li><a href="/displayall">All Areas 1</a></li>
+                <li><a href="/displayall2">All Areas 2</a></li>
+            </ul>
+        </li>
+        <li><a href="#" onclick="toggleSubMenu(event)">SLIDESHOW</a>
+            <ul id="submenu2" style="margin-left: 20px">
+                <li><a href="/AllAreasDisplayFormDisplay1">Display1</a></li>
+                <li><a href="/AllAreasDisplayFormDisplay2">Display2</a></li>
+            </ul>
+        </li>
+    </ul>
+    <div class="close-btn">
+        <button onclick="closeSidebar()">&times; Close</button>
+    </div>
+</div>
+
+<div class="container">
+    <h1>Create Area1</h1>
+    <hr>
+    <form th:action="@{/areas/saveArea}" th:object="${area}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="areaName">Area Name</label>
+            <input type="text" id="areaName" th:field="*{areaName}" placeholder="Area Name" class="form-control">
+            <div th:if="${#fields.hasErrors('areaName')}" class="text-danger">
+                <p th:errors="*{areaName}">Area Name Error</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="areaType">Area Type</label>
+            <select id="areaType" th:field="*{areaType}" class="form-control" required>
+                <option value="" disabled selected>Select Area Type</option>
+                <option th:each="type : ${areaTypes}" th:value="${type}" th:text="${type}"></option>
+            </select>
+            <div th:if="${#fields.hasErrors('areaType')}" class="text-danger">
+                <p th:errors="*{areaType}">Area Type Error</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="areaDirection">Area Direction</label>
+            <input type="text" id="areaDirection" th:field="*{areaDirection}" placeholder="Area Direction" class="form-control">
+            <div th:if="${#fields.hasErrors('areaDirection')}" class="text-danger">
+                <p th:errors="*{areaDirection}">Area Direction Error</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="image">Area Picture (Optional)</label>
+            <input type="file" id="image" name="image" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="coordinates">Coordinates</label>
+            <input type="text" id="coordinates" th:field="*{coordinates}" placeholder="Latitude, Longitude" class="form-control" >
+            <button type="button" class="btn btn-secondary" onclick="getLocation()">Use Current Location</button>
+        </div>
+
+        <div id="map"></div>
+
+        <button type="submit" class="btn btn-primary">Create Area</button>
+    </form>
+    <hr>
+    <a href="#" th:href="@{/}">Back to Area List</a>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var select = document.getElementById("areaType");
+        if (select.value !== "") {
+            select.selectedIndex = 0;
+        }
+
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2); // Set initial view to the whole world
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var marker; // Global variable to hold the marker
+
+        // Function to get the user's location
+        window.getLocation = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+
+                    // Update the input field with coordinates
+                    document.getElementById('coordinates').value = lat + ', ' + lon;
+
+                    // Move the map to the user's location
+                    map.setView([lat, lon], 15); // Zoom to a closer level
+
+                    // Add or update marker
+                    if (marker) {
+                        marker.setLatLng([lat, lon]);
+                    } else {
+                        marker = L.marker([lat, lon]).addTo(map);
+                    }
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
+
+        // Function to open sidebar
+        window.openSidebar = function() {
+            document.getElementById("mySidebar").classList.add("open");
+        };
+
+        // Function to close sidebar
+        window.closeSidebar = function() {
+            document.getElementById("mySidebar").classList.remove("open");
+        };
+
+        // Function for logout
+        window.logout = function() {
+            window.location.href = '/logout';
+        };
+    });
+
+    // Image rotation
+    const rotatingImages = [
+        "/static/images/sec1.png",
+        "/static/images/sec2.png",
+        "/static/images/sec3.png",
+        "/static/images/sec5.png",
+        "/static/images/sec6.png",
+        "/static/images/sec4.png"
+    ];
+
+    let currentImageIndex = 0;
+    const rotatingImageElement = document.getElementById("rotating-image");
+
+    setInterval(() => {
+        rotatingImageElement.classList.remove("show");
+        setTimeout(() => {
+            currentImageIndex = (currentImageIndex + 1) % rotatingImages.length;
+            rotatingImageElement.src = rotatingImages[currentImageIndex];
+            rotatingImageElement.classList.add("show");
+        }, 0); // Wait for 500ms before showing the next image
+    }, 2500); // Change image every 2.5 seconds (adjust the duration as needed)
+
+    function toggleSubMenu(event) {
+        event.preventDefault();
+        var submenu = document.getElementById('submenu');
+        submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+        var clickedLink = event.target;
+        if (clickedLink.innerText === "HOME") {
+            window.location.reload(); // Reload the page
+        }
+    }
+</script>
+
+</body>
+
+</html>

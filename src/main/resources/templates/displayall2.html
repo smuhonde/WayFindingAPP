@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Area List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .btn-small {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            color: white;
+            border-radius: 0.25rem;
+        }
+
+        .btn-custom {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .btn-group-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-group-left {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-group-right {
+            display: flex;
+            gap: 0.2rem;
+        }
+
+        .btn-group-right > a {
+            margin-left: 1rem;
+        }
+
+          /* Align the search form to the right */
+        .search-form-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .search-form-container .form-inline {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-form-container .form-control {
+            border-radius: 0;
+        }
+
+        .search-form-container .btn-primary {
+            border-radius: 0;
+            margin-left: -1px;
+        }
+
+        .search-form-container .form-inline .form-control::placeholder {
+            font-style: italic;
+        }
+
+         body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: green;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar .close-btn {
+            text-align: left;
+            padding: 10px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .sidebar .close-btn button {
+            color: green;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            /*margin-bottom: 40px;*/
+        }
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar li a {
+            display: block;
+            text-decoration: none;
+            color: green;
+            padding: 10px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .company-logo {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .logo-acz {
+            width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            color: green;
+        }
+
+        .rotating-image {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .rotating-image.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <button class="menu-btn" onclick="openSidebar()">&#9776;</button>
+    <h1>WELCOME TO ACZ WAYFINDING SYSTEM</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="sidebar" id="mySidebar">
+    <div class="company-logo">
+        <img src="images/logo-acz.png" alt="" class="logo-acz">
+    </div>
+    <ul>
+        <li><a href="#" onclick="toggleSubMenu(event)">HOME</a></li>
+        <li><a href="/areas/index" onclick="toggleSubMenu(event)">DASHBOARD</a></li>
+        <li><a href="#" onclick="toggleSubMenu(event)">AREAS</a>
+            <ul id="submenu1" style="margin-left: 20px">
+                <li><a href="/areas/showNewAreaForm">Create New Area Display1</a></li>
+                <li><a href="/areas2/showNewAreaForm">Create New Area Display2</a></li>
+                <li><a href="/gatesDisplayForm">View Gates Display Form</a></li>
+                <li><a href="/loungeDisplayForm">View Lounges Display Form</a></li>
+                <li><a href="/otherAreasDisplayForm">View Others Display Form</a></li>
+                <li><a href="/gatesDisplayForm2">View Gates Display2 Form</a></li>
+                <li><a href="/loungeDisplayForm2">View Lounges Display2 Form</a></li>
+                <li><a href="/otherAreasDisplayForm2">View Others Display2 Form</a></li>
+                <li><a href="/displayall">All Areas 1</a></li>
+                <li><a href="/displayall2">All Areas 2</a></li>
+
+            </ul>
+        </li>
+        <li><a href="#" onclick="toggleSubMenu(event)">SLIDESHOW</a>
+            <ul id="submenu2" style="margin-left: 20px">
+                <li><a href="/AllAreasDisplayFormDisplay1">Display1</a></li>
+                <li><a href="/AllAreasDisplayFormDisplay2">Display2</a></li>
+            </ul>
+        </li>
+    </ul>
+    <div class="close-btn">
+        <button onclick="closeSidebar()">&times; Close</button>
+    </div>
+</div>
+
+<div class="content">
+    <img id="rotating-image" src="../../static/images/sec1.png" alt="" class="rotating-image">
+</div>
+
+
+
+<div class="container">
+    <h1>Area List</h1>
+    <hr>
+
+    <div class="search-form-container">
+        <form action="#" method="get" class="form-inline">
+            <div class="input-group">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Area Number</th>
+            <th>Area Name</th>
+            <th>Area Type</th>
+            <th>Area Direction</th>
+            <th>Area Picture</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="area2 : ${listAreas2}">
+            <td th:text="${area2.areaNumber}"></td>
+            <td th:text="${area2.areaName}"></td>
+            <td th:text="${area2.areaType}"></td>
+            <td th:text="${area2.areaDirection}"></td>
+            <td>
+                <img th:if="${area2.base64Image != null}" th:src="'data:image/jpeg;base64,' + ${area2.base64Image}" alt="Area Picture" style="width: 100px; height: auto;"/>
+                <span th:unless="${area2.base64Image != null}">No Image</span>
+            </td>
+            <td>
+                <a th:href="@{/areas2/showFormForUpdate/{id}(id=${area2.id})}" class="btn btn-warning">Update</a>
+                <a th:href="@{/areas2/deleteArea/{id}(id=${area2.id})}"
+                   class="btn btn-danger"
+                   onclick="return confirm('Are you sure you want to delete this area?');">
+                    Delete
+                </a>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<a href="#" th:href="@{/}">Main Menu</a>
+</body>
+<script>
+    function openSidebar() {
+      document.getElementById("mySidebar").classList.add("open");
+  }
+
+  function closeSidebar() {
+      document.getElementById("mySidebar").classList.remove("open");
+  }
+
+  function logout() {
+      // Add your logout functionality here
+      alert("Logout clicked!");
+  }
+
+<!--  // Image rotation-->
+<!--  const rotatingImages = [-->
+<!--      "/static/images/sec1.png",-->
+<!--      "/static/images/sec2.png",-->
+<!--      "/static/images/sec3.png",-->
+<!--      "/static/images/sec5.png",-->
+<!--      "/static/images/sec6.png",-->
+<!--      "/static/images/sec4.png"-->
+<!--  ];-->
+
+<!--  let currentImageIndex = 0;-->
+<!--  const rotatingImageElement = document.getElementById("rotating-image");-->
+
+<!--  setInterval(() => {-->
+<!--      rotatingImageElement.classList.remove("show");-->
+<!--      setTimeout(() => {-->
+<!--          currentImageIndex = (currentImageIndex + 1) % rotatingImages.length;-->
+<!--          rotatingImageElement.src = rotatingImages[currentImageIndex];-->
+<!--          rotatingImageElement.classList.add("show");-->
+<!--      },0); // Wait for 500ms before showing the next image-->
+<!--  }, 2500); // Change image every 2.5 seconds (adjust the duration as needed)-->
+
+  function toggleSubMenu(event) {
+      event.preventDefault();
+      var submenu = document.getElementById('submenu');
+      submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+       var clickedLink = event.target;
+  if (clickedLink.innerText === "HOME") {
+      window.location.reload(); // Reload the page
+  }
+  }
+      function logout() {
+window.location.href = '/logout';
+}
+</script>
+</html>
